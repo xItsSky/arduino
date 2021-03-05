@@ -1,12 +1,14 @@
-public enum class TaskState {
-	Todo, InProgress, Done;
-};
+#include "TaskState.h"
+#include <string>
 
-public class Task {
+/* Task class by Quentin Emo */
+class Task {
 	private:
-		char* id;
+		std::string id;
 		TaskState state;
 	public:
-		char* getId();
-		TaskState getState();
+		Task(std::string id);
+		std::string getId();
+		std::string getState();
+		bool nextState();
 };

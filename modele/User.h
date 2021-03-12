@@ -1,4 +1,5 @@
-#include "Task.cpp"
+#pragma once
+#include "Task.h"
 #include <iterator>
 #include <list>
 

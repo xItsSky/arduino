@@ -1,9 +1,10 @@
+#pragma once
 #include <string>
 
 using namespace std;
 
 // Constante ToDo string
-static const char* ToDo_str = "ToDo"
+static const char* ToDo_str = "ToDo";
 
 // Constante InProgress string
 static const char* InProgress_str = "InProgress";

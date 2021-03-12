@@ -35,7 +35,7 @@ string Group::getName()
 	return this->name;
 }
 
-vector<User*> Group::getUser()
+vector<User*> * Group::getUser()
 {
 	return this->users;
 }
@@ -50,7 +50,7 @@ void Group::setName(string name)
 	this->name = name;
 }
 
-void Group::setUsers(vector<User*> users)
+void Group::setUsers(vector<User*> *users)
 {
 	this->users = users;
 }

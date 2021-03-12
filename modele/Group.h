@@ -15,7 +15,7 @@ private:
 	
 	int id;
 	string name;
-	vector<User*> users;
+	vector<User*> *users = new vector<User*>();
 	string color;
 
 public:
@@ -25,10 +25,10 @@ public:
 	int getId();
 	string getColor();
 	string getName();
-	vector<User*> getUser();
+	vector<User*> *getUser();
 	void setColor(string color);
 	void setName(string name);
-	void setUsers(vector<User*> users);
+	void setUsers(vector<User*> *users);
 
 	
 	

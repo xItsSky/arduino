@@ -18,8 +18,15 @@ int main() {
 	cout << "On est " + user->getId() << endl;
 
 
-	group->getUser().push_back(user);
-	cout << group->getUser().at(0)->getId() << endl;
+	vector<User*> vec;
+	vec.push_back(user);
+	vec.push_back(user);
+	vec.push_back(user);
+
+	group->getUser()->push_back(user);
+	group->getUser()->push_back(user);
+	group->getUser()->push_back(user);
+	cout << group->getUser()->at(0)->getId() << endl;
 	
 
 	Task* task = new Task("mytask");

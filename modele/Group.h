@@ -9,7 +9,7 @@
 
 using namespace std;
 
-/* Task class by Quentin Emo */
+/* Group class by Quentin Emo */
 class Group {
 private:
 	

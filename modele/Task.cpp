@@ -1,18 +1,18 @@
 #include "Task.h"
 
 /* Task constructor */
-Task::Task(std::string id) {
+Task::Task(char* id) {
 	this->id = id;
 	this->state = TaskState::Todo;
 }
 
 /* Return the task id as string */
-std::string Task::getId() {
+char* Task::getId() {
 	return this->id;
 }
 
 /* Return the current task state as string */
-std::string Task::getState() {
+const char* Task::getState() {
 	return enum_str[(int) this->state];
 }
 
@@ -25,7 +25,7 @@ bool Task::nextState() {
 		case TaskState::InProgress:
 			this->state = TaskState::Done;
 			return true;
-		case TaskState::Done:
+		default:
 			return false;
 	}
 }

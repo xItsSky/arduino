@@ -1,7 +1,5 @@
 #pragma once
-#include <array>
 #include <list>
-#include <string>
 #include <vector>
 
 
@@ -14,20 +12,20 @@ class Group {
 private:
 	
 	int id;
-	string name;
+	char* name;
 	vector<User*> *users = new vector<User*>();
-	string color;
+	char* color;
 
 public:
 	Group(int id);
-	Group(int id, string name);
-	Group(int id, string name, string color);
+	Group(int id, char* name);
+	Group(int id, char* name, char* color);
 	int getId();
-	string getColor();
-	string getName();
+	char* getColor();
+	char* getName();
 	vector<User*> *getUser();
-	void setColor(string color);
-	void setName(string name);
+	void setColor(char* color);
+	void setName(char* name);
 	void setUsers(vector<User*> *users);
 
 	

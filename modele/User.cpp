@@ -1,12 +1,12 @@
 #include "User.h"
 
 /* User constructor */
-User::User(std::string id) {
+User::User(char* id) {
 	this->id = id;
 }
 
 /* Return user id as string */
-std::string User::getId() {
+char* User::getId() {
 	return this->id;
 }
 

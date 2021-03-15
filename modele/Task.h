@@ -1,15 +1,14 @@
 #pragma once
 #include "TaskState.h"
-#include <string>
 
 /* Task class by Quentin Emo */
 class Task {
 	private:
-		std::string id;
+		char* id;
 		TaskState state;
 	public:
-		Task(std::string id);
-		std::string getId();
-		std::string getState();
+		Task(char* id);
+		char* getId();
+		const char* getState();
 		bool nextState();
 };

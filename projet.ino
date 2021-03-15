@@ -1,14 +1,12 @@
-#include <Vector.h>
+#include <ArduinoSTL.h>
 
 // Utilisé pour le bluetooth
 #define BLYNK_PRINT Serial
 #include <BlynkSimpleCurieBLE.h>
 #include <CurieBLE.h>
-
 #include <ChainableLED.h>
 
-// Utilisé pour les sons
-#include "BuzzerNotes.h"
+using namespace std;
 
 // Utilisé pour le capteur de geste
 #include <Wire.h>
@@ -17,10 +15,13 @@
 // Utilisé pour le capteur de mouvement
 #include "CurieIMU.h"
 
+// INCLUDE DES UTILS
+#include "utils/BuzzerNotes.h"
+
 // INCLUDE DU MODELE
-#include "modele/Group.h"
-#include "modele/User.h"
-#include "modele/Task.h"
+#include "modele/Group.cpp"
+#include "modele/User.cpp"
+#include "modele/Task.cpp"
 
 // Utilisé pour le capteur de geste
 #define GES_REACTION_TIME    500       // You can adjust the reaction time according to the actual circumstance.
@@ -147,7 +148,7 @@ void setup()
 
   group->setName("Groupe de test");
   group->setColor("#FF0000");
-  
+
   vector<User*> vec;
   vec.push_back(user);
   vec.push_back(user);
@@ -156,7 +157,7 @@ void setup()
   group->getUser()->push_back(user);
   group->getUser()->push_back(user);
   group->getUser()->push_back(user);
-  
+
   task->nextState();
   user->addTask(task);
 }
@@ -173,18 +174,18 @@ void loop()
   // Utilisée pour le capteur de geste
   uint8_t data = 0, error;
   error = paj7620ReadReg(0x43, 1, &data);
-  if (!error) 
+  if (!error)
   {
     switch (data) {
       case GES_RIGHT_FLAG:
         delay(GES_ENTRY_TIME);
         paj7620ReadReg(0x43, 1, &data);
-        if(data == GES_FORWARD_FLAG) 
+        if (data == GES_FORWARD_FLAG)
         {
           Serial.println("Forward");
           delay(GES_QUIT_TIME);
         }
-        else if(data == GES_BACKWARD_FLAG) 
+        else if (data == GES_BACKWARD_FLAG)
         {
           Serial.println("Backward");
           delay(GES_QUIT_TIME);
@@ -192,17 +193,17 @@ void loop()
         else
         {
           Serial.println("Right");
-        }          
+        }
         break;
-      case GES_LEFT_FLAG: 
+      case GES_LEFT_FLAG:
         delay(GES_ENTRY_TIME);
         paj7620ReadReg(0x43, 1, &data);
-        if(data == GES_FORWARD_FLAG) 
+        if (data == GES_FORWARD_FLAG)
         {
           Serial.println("Forward");
           delay(GES_QUIT_TIME);
         }
-        else if(data == GES_BACKWARD_FLAG) 
+        else if (data == GES_BACKWARD_FLAG)
         {
           Serial.println("Backward");
           delay(GES_QUIT_TIME);
@@ -210,7 +211,7 @@ void loop()
         else
         {
           Serial.println("Left");
-        }          
+        }
         break;
       default:
         break;
@@ -222,18 +223,18 @@ void loop()
     countUntilShake = 0;
     Serial.println("Secousse");
   }
-  
+
   delay(100);
 }
 
 
 // Utilisée pour le capteur de mouvement
-static void eventCallback(void){
+static void eventCallback(void) {
   if (CurieIMU.getInterruptStatus(CURIE_IMU_MOTION)) {
     if (CurieIMU.motionDetected(Y_AXIS, POSITIVE))
       countUntilShake++;
     if (CurieIMU.motionDetected(Y_AXIS, NEGATIVE))
       countUntilShake++;
-    interruptsTime = millis(); 
+    interruptsTime = millis();
   }
 }

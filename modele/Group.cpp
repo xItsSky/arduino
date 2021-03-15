@@ -6,14 +6,13 @@ Group::Group(int id)
 	
 }
 
-Group::Group(int id, string name)
+Group::Group(int id, char* name)
 {
-
 	this->id = id;
 	this->name = name;
 }
 
-Group::Group(int id, string name, string color)
+Group::Group(int id, char* name, char* color)
 {
 	this->id = id;
 	this->name = name;
@@ -25,12 +24,12 @@ int Group::getId()
 	return this->id;
 }
 
-string Group::getColor()
+char* Group::getColor()
 {
 	return this->color;
 }
 
-string Group::getName()
+char* Group::getName()
 {
 	return this->name;
 }
@@ -40,12 +39,12 @@ vector<User*> * Group::getUser()
 	return this->users;
 }
 
-void Group::setColor(string color)
+void Group::setColor(char* color)
 {
 	this->color = color;
 }
 
-void Group::setName(string name)
+void Group::setName(char* name)
 {
 	this->name = name;
 }

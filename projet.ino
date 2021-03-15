@@ -18,9 +18,9 @@
 #include "CurieIMU.h"
 
 // INCLUDE DU MODELE
-#include "Group.h"
-#include "User.h"
-#include "Task.h"
+#include "modele/Group.h"
+#include "modele/User.h"
+#include "modele/Task.h"
 
 // Utilisé pour le capteur de geste
 #define GES_REACTION_TIME    500       // You can adjust the reaction time according to the actual circumstance.

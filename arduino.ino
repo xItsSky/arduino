@@ -63,23 +63,46 @@ BLEPeripheral  blePeripheral;
 int countUntilShake = 0;
 unsigned long interruptsTime = 0;    // get the time when motion event is detected
 
+Group* group1;
+Group* group2;
+
 // Les pins virtuelles utilisés pour le bluetooth
 // Quand on fait une action, c'est ici qu'on récupère les valeurs avec param.astInt
 BLYNK_WRITE(V1) // Changement de couleur du groupe 1
 {
+  // Récupère les couleurs RGB
   int redValue = param[0].asInt();
   int greenValue = param[1].asInt();
   int blueValue = param[2].asInt();
 
-  leds.setColorRGB(0, redValue, greenValue, blueValue);
+  // Transforme en HEXA
+  long rgb = ((long)redValue << 16L) | ((long)greenValue << 8L) | (long)blueValue;
+  String hexa = "#" + String(rgb, HEX);
+  char c[255];
+  hexa.toCharArray(c, 255);
+
+  // Set la couleur au groupe 1
+  group1->setColor(c);
+  
+  //leds.setColorRGB(0, redValue, greenValue, blueValue);
 }
 BLYNK_WRITE(V2) // Changement de couleur du groupe 2
 {
+  // Récupère les couleurs RGB
   int redValue = param[0].asInt();
   int greenValue = param[1].asInt();
   int blueValue = param[2].asInt();
 
-  leds.setColorRGB(0, redValue, greenValue, blueValue);
+  // Transforme en HEXA
+  long rgb = ((long)redValue << 16L) | ((long)greenValue << 8L) | (long)blueValue;
+  String hexa = "#" + String(rgb, HEX);
+  char c[255];
+  hexa.toCharArray(c, 255);
+
+  // Set la couleur au groupe 2
+  group2->setColor(c);
+
+  //leds.setColorRGB(0, redValue, greenValue, blueValue);
 }
 BLYNK_WRITE(V3) // Changement de son du groupe 1
 {
@@ -147,8 +170,8 @@ void setup()
   CurieIMU.setDetectionDuration(CURIE_IMU_MOTION, 10);  // trigger times of consecutive slope data points
   CurieIMU.interrupts(CURIE_IMU_MOTION);
 
-  Group* group1 = new Group(1, "Groupe 1", "#FF0000", 1);
-  Group* group2 = new Group(2, "Groupe 2", "#0000FF", 2);
+  group1 = new Group(1, "Groupe 1", "#FF0000", 1);
+  group2 = new Group(2, "Groupe 2", "#0000FF", 2);
   
   User* user1 = new User(1, "Quentin");
   User* user2 = new User(2, "Romain");

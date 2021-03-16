@@ -63,9 +63,9 @@ BLEPeripheral  blePeripheral;
 int countUntilShake = 0;
 unsigned long interruptsTime = 0;    // get the time when motion event is detected
 
-// Les pins virtuelles utilisés pour le bluetooth*
+// Les pins virtuelles utilisés pour le bluetooth
 // Quand on fait une action, c'est ici qu'on récupère les valeurs avec param.astInt
-BLYNK_WRITE(V1)
+BLYNK_WRITE(V1) // Changement de couleur du groupe 1
 {
   int redValue = param[0].asInt();
   int greenValue = param[1].asInt();
@@ -73,7 +73,7 @@ BLYNK_WRITE(V1)
 
   leds.setColorRGB(0, redValue, greenValue, blueValue);
 }
-BLYNK_WRITE(V2)
+BLYNK_WRITE(V2) // Changement de couleur du groupe 2
 {
   int redValue = param[0].asInt();
   int greenValue = param[1].asInt();
@@ -81,7 +81,7 @@ BLYNK_WRITE(V2)
 
   leds.setColorRGB(0, redValue, greenValue, blueValue);
 }
-BLYNK_WRITE(V3)
+BLYNK_WRITE(V3) // Changement de son du groupe 1
 {
   int soundValue = param.asInt();
 
@@ -99,7 +99,7 @@ BLYNK_WRITE(V3)
   }
 }
 
-BLYNK_WRITE(V4)
+BLYNK_WRITE(V4) // Changement de son du groupe 2
 {
   int soundValue = param.asInt();
 
@@ -157,11 +157,11 @@ void setup()
   Task* task1 = new Task(1, "Tâche 1");
   Task* task2 = new Task(2, "Tâche 2");
 
-  vector<User*>* listUserGrp1;
+  vector<User*>* listUserGrp1 = new vector<User*>();
   listUserGrp1->push_back(user1);
   listUserGrp1->push_back(user2);
 
-  vector<User*>* listUserGrp2;
+  vector<User*>* listUserGrp2  = new vector<User*>();
   listUserGrp2->push_back(user3);
 
   group1->setUsers(listUserGrp1);

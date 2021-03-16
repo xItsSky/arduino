@@ -4,11 +4,14 @@
 /* Task class by Quentin Emo */
 class Task {
 	private:
-		char* id;
+		int id;
+		char* name;
 		TaskState state;
 	public:
-		Task(char* id);
-		char* getId();
+		Task(int id);
+		Task(int id, char* name);
+		int getId();
+		char* getName();
 		const char* getState();
 		bool nextState();
 };

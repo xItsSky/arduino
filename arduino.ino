@@ -147,24 +147,35 @@ void setup()
   CurieIMU.setDetectionDuration(CURIE_IMU_MOTION, 10);  // trigger times of consecutive slope data points
   CurieIMU.interrupts(CURIE_IMU_MOTION);
 
-  Group* group = new Group(1);
-  User* user = new User("Quentin");
-  Task* task = new Task("mytask");
+  Group* group1 = new Group(1, "Groupe 1", "#FF0000", 1);
+  Group* group2 = new Group(2, "Groupe 2", "#0000FF", 2);
+  
+  User* user1 = new User(1, "Quentin");
+  User* user2 = new User(2, "Romain");
+  User* user3 = new User(3, "Valentin");
 
-  group->setName("Groupe de test");
-  group->setColor("#FF0000");
+  Task* task1 = new Task(1, "Tâche 1");
+  Task* task2 = new Task(2, "Tâche 2");
 
-  vector<User*> vec;
-  vec.push_back(user);
-  vec.push_back(user);
-  vec.push_back(user);
+  vector<User*>* listUserGrp1;
+  listUserGrp1->push_back(user1);
+  listUserGrp1->push_back(user2);
 
-  group->getUser()->push_back(user);
-  group->getUser()->push_back(user);
-  group->getUser()->push_back(user);
+  vector<User*>* listUserGrp2;
+  listUserGrp2->push_back(user3);
 
-  task->nextState();
-  user->addTask(task);
+  group1->setUsers(listUserGrp1);
+  group2->setUsers(listUserGrp2);
+
+  user1->addTask(task1);
+  user2->addTask(task1);
+  user3->addTask(task1);
+  
+  user1->addTask(task2);
+  user2->addTask(task2);
+  user3->addTask(task2);
+
+  //task->nextState(); // Pour changer d'état
 }
 
 ///////////////////////////////////////////////

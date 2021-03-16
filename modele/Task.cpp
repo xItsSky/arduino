@@ -1,14 +1,24 @@
 #include "Task.h"
 
 /* Task constructor */
-Task::Task(char* id) {
+Task::Task(int id) {
 	this->id = id;
 	this->state = TaskState::Todo;
 }
 
-/* Return the task id as string */
-char* Task::getId() {
+Task::Task(int id, char* name) {
+	this->id = id;
+	this->name = name;
+	this->state = TaskState::Todo;
+}
+
+/* Return the task id  */
+int Task::getId() {
 	return this->id;
+}
+
+char* Task::getName() {
+	return this->name;
 }
 
 /* Return the current task state as string */

@@ -12,11 +12,12 @@ Group::Group(int id, char* name)
 	this->name = name;
 }
 
-Group::Group(int id, char* name, char* color)
+Group::Group(int id, char* name, char* color, int sound)
 {
 	this->id = id;
 	this->name = name;
 	this->color = color;
+	this->sound = sound;
 }
 
 int Group::getId()
@@ -27,6 +28,11 @@ int Group::getId()
 char* Group::getColor()
 {
 	return this->color;
+}
+
+int Group::getSound()
+{
+	return this->sound;
 }
 
 char* Group::getName()
@@ -47,6 +53,11 @@ void Group::setColor(char* color)
 void Group::setName(char* name)
 {
 	this->name = name;
+}
+
+void Group::setSound(int sound)
+{
+	this->sound = sound;
 }
 
 void Group::setUsers(vector<User*> *users)

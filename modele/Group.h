@@ -15,19 +15,19 @@ private:
 	char* name;
 	vector<User*> *users = new vector<User*>();
 	char* color;
+	int sound;
 
 public:
 	Group(int id);
 	Group(int id, char* name);
-	Group(int id, char* name, char* color);
+	Group(int id, char* name, char* color, int sound);
 	int getId();
 	char* getColor();
 	char* getName();
+	int getSound();
 	vector<User*> *getUser();
 	void setColor(char* color);
 	void setName(char* name);
+	void setSound(int sound);
 	void setUsers(vector<User*> *users);
-
-	
-	
 };

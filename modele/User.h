@@ -6,11 +6,14 @@
 /* User class by Quentin Emo */
 class User {
 private:
-	char* id;
+	int id;
+	char* name;
 	std::list<Task*> tasks;
 public:
-	User(char* id);
-	char* getId();
+	User(int id);
+	User(int id, char* name);
+	int getId();
+	char* getName();
 	void addTask(Task* task);
 	Task* getTask(int _i);
 };

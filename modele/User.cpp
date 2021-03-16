@@ -1,13 +1,23 @@
 #include "User.h"
 
 /* User constructor */
-User::User(char* id) {
+User::User(int id) {
 	this->id = id;
 }
 
-/* Return user id as string */
-char* User::getId() {
+User::User(int id, char* name) {
+	this->id = id;
+	this->name = name;
+}
+
+
+/* Return user id  */
+int User::getId() {
 	return this->id;
+}
+
+char* User::getName() {
+	return this->name;
 }
 
 /* Add a task to the user */

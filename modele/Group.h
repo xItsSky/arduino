@@ -1,6 +1,5 @@
 #pragma once
 #include <list>
-#include <vector>
 
 
 #include "User.h"
@@ -13,7 +12,7 @@ private:
 	
 	int id;
 	char* name;
-	vector<User*> *users = new vector<User*>();
+	std::list<User*> users;
 	char* color;
 	int sound;
 
@@ -25,9 +24,11 @@ public:
 	char* getColor();
 	char* getName();
 	int getSound();
-	vector<User*> *getUser();
+	std::list<User*> getUser();
 	void setColor(char* color);
 	void setName(char* name);
 	void setSound(int sound);
-	void setUsers(vector<User*> *users);
+	void addUser(User* user);
+	void setUsers(std::list<User*> users);
+	bool operator==(const Group& group) const;
 };

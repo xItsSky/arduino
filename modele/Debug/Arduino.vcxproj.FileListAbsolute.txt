@@ -1,0 +1,2 @@
+C:\Users\emoqu\Documents\Arduino\arduino\modele\Debug\Arduino.exe
+C:\Users\emoqu\Documents\Arduino\arduino\modele\Debug\Arduino.pdb

@@ -40,7 +40,7 @@ char* Group::getName()
 	return this->name;
 }
 
-vector<User*> * Group::getUser()
+std::list<User*> Group::getUser()
 {
 	return this->users;
 }
@@ -60,7 +60,16 @@ void Group::setSound(int sound)
 	this->sound = sound;
 }
 
-void Group::setUsers(vector<User*> *users)
+void Group::setUsers(std::list<User*> users)
 {
 	this->users = users;
+}
+
+void Group::addUser(User* user)
+{
+	this->users.push_back(user);
+}
+
+bool Group::operator==(const Group& group) const {
+	return this->id == group.id;
 }

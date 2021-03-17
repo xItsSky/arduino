@@ -14,6 +14,10 @@ public:
 	User(int id, char* name);
 	int getId();
 	char* getName();
+	void setName(char* name);
 	void addTask(Task* task);
 	Task* getTask(int _i);
+	void setTasks(std::list<Task*> tasks);
+	std::list<Task*> getTasks();
+	bool operator==(const User& user) const;
 };

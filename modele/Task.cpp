@@ -17,13 +17,23 @@ int Task::getId() {
 	return this->id;
 }
 
+void Task::setName(char* name)
+{
+	this->name = name;
+}
+
 char* Task::getName() {
 	return this->name;
 }
 
+void Task::setState(TaskState state)
+{
+	this->state = state;
+}
+
 /* Return the current task state as string */
-const char* Task::getState() {
-	return enum_str[(int) this->state];
+TaskState Task::getState() {
+	return this->state;
 }
 
 /* Set up the task on the next state */
@@ -38,4 +48,9 @@ bool Task::nextState() {
 		default:
 			return false;
 	}
+}
+
+bool Task::operator==(const Task& task) const
+{
+	return this->id == task.id;
 }

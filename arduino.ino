@@ -1,11 +1,12 @@
-#include <ArduinoSTL.h>
+/*******************************************************************************
+ *                              INCLUDES                                       *
+ *******************************************************************************/
 
 // Utilisé pour le bluetooth
-#define BLYNK_PRINT Serial
 #include <BlynkSimpleCurieBLE.h>
 #include <CurieBLE.h>
 #include <ChainableLED.h>
-
+#include <ArduinoSTL.h>
 using namespace std;
 
 // Utilisé pour le capteur de geste
@@ -23,11 +24,33 @@ using namespace std;
 #include "modele/Group.cpp"
 #include "modele/User.cpp"
 #include "modele/Task.cpp"
+#include "modele/GroupFactory.cpp"
+#include "modele/UserFactory.cpp"
+#include "modele/TaskFactory.cpp"
+
+/*******************************************************************************
+ *                              DEFINES                                        *
+ *******************************************************************************/
+
+// Utilisé pour le bluetooth
+#define BLYNK_PRINT Serial
 
 // Utilisé pour le capteur de geste
-#define GES_REACTION_TIME    500       // You can adjust the reaction time according to the actual circumstance.
-#define GES_ENTRY_TIME      800       // When you want to recognize the Forward/Backward gestures, your gestures' reaction time must less than GES_ENTRY_TIME(0.8s). 
+#define GES_REACTION_TIME    500
+#define GES_ENTRY_TIME      800
 #define GES_QUIT_TIME     1000
+
+/*******************************************************************************
+ *                              VARIABLES                                      *
+ *******************************************************************************/
+
+// Factories
+GroupFactory* groups = GroupFactory::getInstance();
+UserFactory* users = UserFactory::getInstance();
+TaskFactory* tasks = TaskFactory::getInstance();
+
+// Variables de gestions
+int currentDisplayedGroup = 0;
 
 // Les pins
 const int pin = 4;
@@ -65,6 +88,10 @@ unsigned long interruptsTime = 0;    // get the time when motion event is detect
 
 Group* group1;
 Group* group2;
+
+/*******************************************************************************
+ *                              BLUETOOTH                                      *
+ *******************************************************************************/
 
 // Les pins virtuelles utilisés pour le bluetooth
 // Quand on fait une action, c'est ici qu'on récupère les valeurs avec param.astInt
@@ -140,9 +167,10 @@ BLYNK_WRITE(V4) // Changement de son du groupe 2
   }
 }
 
-///////////////////////////////////////////////
-////////////////// SETUP //////////////////////
-///////////////////////////////////////////////
+/*******************************************************************************
+ *                                  SETUP                                      *
+ *******************************************************************************/
+ 
 void setup()
 {
   // Debug console
@@ -170,40 +198,16 @@ void setup()
   CurieIMU.setDetectionDuration(CURIE_IMU_MOTION, 10);  // trigger times of consecutive slope data points
   CurieIMU.interrupts(CURIE_IMU_MOTION);
 
-  group1 = new Group(1, "Groupe 1", "#FF0000", 1);
-  group2 = new Group(2, "Groupe 2", "#0000FF", 2);
-  
-  User* user1 = new User(1, "Quentin");
-  User* user2 = new User(2, "Romain");
-  User* user3 = new User(3, "Valentin");
-
-  Task* task1 = new Task(1, "Tâche 1");
-  Task* task2 = new Task(2, "Tâche 2");
-
-  vector<User*>* listUserGrp1 = new vector<User*>();
-  listUserGrp1->push_back(user1);
-  listUserGrp1->push_back(user2);
-
-  vector<User*>* listUserGrp2  = new vector<User*>();
-  listUserGrp2->push_back(user3);
-
-  group1->setUsers(listUserGrp1);
-  group2->setUsers(listUserGrp2);
-
-  user1->addTask(task1);
-  user2->addTask(task1);
-  user3->addTask(task1);
-  
-  user1->addTask(task2);
-  user2->addTask(task2);
-  user3->addTask(task2);
+  // initialise the groups, users and tasks factories
+  initFactories();
 
   //task->nextState(); // Pour changer d'état
 }
 
-///////////////////////////////////////////////
-/////////////////// LOOP //////////////////////
-///////////////////////////////////////////////
+/*******************************************************************************
+ *                                  LOOP                                       *
+ *******************************************************************************/
+ 
 void loop()
 {
   // Utilisé pour le bluetooth
@@ -280,6 +284,67 @@ void loop()
   }
 }
 
+/**
+ * Initialise the groups, users and tasks factories
+ */
+void initFactories() {
+  // tasks
+  Task* task1 = new Task(1, (char*)"Réaliser les classes métiers");
+  Task* task2 = new Task(2, (char*)"Tester les classes métiers");
+  Task* task3 = new Task(3, (char*)"Réaliser le code Arduino");
+  Task* task4 = new Task(4, (char*)"Tester le code Arduino");
+
+  tasks->create(task1);
+  tasks->create(task2);
+  tasks->create(task3);
+  tasks->create(task4);
+
+  // users
+  User* user1 = new User(1, (char*)"Quentin");
+  user1->addTask(task1);
+  User* user2 = new User(2, (char*)"Romain");
+  user2->addTask(task3);
+  User* user3 = new User(3, (char*)"Valentin");
+  user3->addTask(task2);
+  user3->addTask(task4);
+
+  users->create(user1);
+  users->create(user2);
+  users->create(user3);
+
+  // groups
+  group1 = new Group(1, (char*)"Groupe 1", (char*)"#FF0000", 1);
+  group1->addUser(user1);
+  group1->addUser(user2);
+  group2 = new Group(2, (char*)"Groupe 2", (char*)"#0000FF", 2);
+  group2->addUser(user3);
+
+  groups->create(group1);
+  groups->create(group2);
+}
+
+/***
+ * Switch the displayed group to the next group
+ */
+void nextGroup() {
+  int nbGroup = (int)groups->findAll().size();
+  currentDisplayedGroup = (currentDisplayedGroup + 1) % nbGroup;
+}
+
+/**
+ * Switch the displayed group to the previous group
+ */
+void previousGroup() {
+  int nbGroup = (int)groups->findAll().size();
+  currentDisplayedGroup = (currentDisplayedGroup - 1 > 0 ? currentDisplayedGroup - 1 : 2) % nbGroup;
+}
+
+/**
+ * Return the displayed group
+ */
+Group* getDisplayedGroup() {
+  return groups->find(currentDisplayedGroup);
+}
 
 // Utilisée pour le capteur de mouvement
 static void eventCallback(void) {

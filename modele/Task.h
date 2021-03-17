@@ -11,7 +11,10 @@ class Task {
 		Task(int id);
 		Task(int id, char* name);
 		int getId();
+		void setName(char* name);
 		char* getName();
-		const char* getState();
+		void setState(TaskState state);
+		TaskState getState();
 		bool nextState();
+		bool operator==(const Task& task) const;
 };

@@ -66,6 +66,8 @@ int currentDisplayedTask = 0;
 // Les pins
 const int pin = 4;
 const int pin_data = 5;
+const int pinTask = 5;
+const int pin_dataTask = 6;
 int pinBuzzer = 3;
 const int pinTouch = 2;
 
@@ -88,6 +90,9 @@ int endTaskSound[2][maxNotes] = {};
 
 // Led pour la couleur de groupe
 ChainableLED leds(pin, pin_data, 1);
+
+// Led pour la couleur des tâches
+ChainableLED ledsTask(pinTask, pin_dataTask, 2);
 
 // Variable pour le bluetooth
 char auth[] = "_fMOO1biadye2sn2M4Qn6g2pXLa1ULj8";
@@ -200,6 +205,7 @@ void setup()
   blePeripheral.begin();
 
   leds.init();
+  ledsTask.init();
 
   // Utilisé pour le capteur de mouvement
   CurieIMU.begin();
@@ -247,6 +253,8 @@ void loop()
     }
 
     getDisplayedTask()->setState(TaskState::Todo);
+
+    setLedTask();
   }
 
   // Regarde si un geste est fait de la main pour changer de groupe
@@ -256,6 +264,9 @@ void loop()
 
     currentDisplayedUser = 0;
     currentDisplayedTask = 0;
+
+    // Affiche la couleur de la tâche
+    setLedTask();
     
     // Affiche la couleur du groupe 1
     setGroupLedColor();
@@ -266,6 +277,9 @@ void loop()
 
     currentDisplayedUser = 0;
     currentDisplayedTask = 0;
+
+    // Affiche la couleur de la tâche
+    setLedTask();
     
     // Affiche la couleur du groupe 2
     setGroupLedColor();
@@ -280,10 +294,19 @@ void loop()
         nextUser();
 
         currentDisplayedTask = 0;
+
+        // Affiche la couleur de la tâche
+        setLedTask();
       } else if (saveTap == 2) {
         nextTask();
+
+        // Affiche la couleur de la tâche
+        setLedTask();
       } else if (saveTap == 3 && getDisplayedTask()->getState() != TaskState::Done) {
         getDisplayedTask()->nextState();
+
+        // Affiche la couleur de la tâche
+        setLedTask();
       }
       
       Serial.print("touch : ");
@@ -310,6 +333,19 @@ void setGroupLedColor() {
   int blue = (rgb & 0x0000ff);
 
   leds.setColorRGB(0, red, green, blue);
+}
+
+void setLedTask() {
+  if (getDisplayedTask()->getState() == TaskState::Todo) {
+    ledsTask.setColorRGB(0, 255, 0, 0);
+    ledsTask.setColorRGB(1, 255, 0, 0);
+  } else if (getDisplayedTask()->getState() == TaskState::InProgress) {
+    ledsTask.setColorRGB(0, 0, 0, 255);
+    ledsTask.setColorRGB(1, 0, 0, 255);
+  } else {
+    ledsTask.setColorRGB(0, 0, 255, 0);
+    ledsTask.setColorRGB(1, 0, 255, 0);
+  }
 }
 
 /**

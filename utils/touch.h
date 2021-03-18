@@ -14,6 +14,7 @@ class touch
     touch(int pin);
     int detection();
     int getNbTap();
+    int nbDetection();
   private:
     int _pin;
     int nbTap = 0;

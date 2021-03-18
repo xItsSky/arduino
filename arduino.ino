@@ -19,6 +19,8 @@ using namespace std;
 // INCLUDE DES UTILS
 #include "utils/BuzzerNotes.h"
 #include "utils/touch.cpp"
+#include "utils/ecran.cpp"
+#include "utils/gesture.cpp"
 
 // INCLUDE DU MODELE
 #include "modele/Group.cpp"
@@ -202,8 +204,6 @@ void setup()
 
   // initialise the groups, users and tasks factories
   initFactories();
-
-  //task->nextState(); // Pour changer d'état
 }
 
 /*******************************************************************************

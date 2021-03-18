@@ -51,6 +51,8 @@ TaskFactory* tasks = TaskFactory::getInstance();
 
 // Variables de gestions
 int currentDisplayedGroup = 0;
+int currentDisplayedUser = 0;
+int currentDisplayedTask = 0;
 
 // Les pins
 const int pin = 4;
@@ -285,6 +287,19 @@ void loop()
 }
 
 /**
+ * Setup the chainable led color based on the current displayed group
+ * /!\ To test I'm not sure
+ */
+void setGroupLedColor() {
+  long int rgb = (long) strtol( getDisplayedGroup()->getColor(), NULL, 16);
+  int red = rgb >> 16L;
+  int green = (rgb & 0x00ff00) >> 8L;
+  int blue = (rgb & 0x0000ff);
+
+  leds.setColorRGB(0, red, green, blue);
+}
+
+/**
  * Initialise the groups, users and tasks factories
  */
 void initFactories() {
@@ -339,11 +354,57 @@ void previousGroup() {
   currentDisplayedGroup = (currentDisplayedGroup - 1 > 0 ? currentDisplayedGroup - 1 : 2) % nbGroup;
 }
 
+/***
+ * Switch the displayed user to the next user
+ */
+void nextUser() {
+  int nbUser = (int)users->findAll().size();
+  currentDisplayedUser = (currentDisplayedUser + 1) % nbUser;
+}
+
+/**
+ * Switch the displayed user to the previous user
+ */
+void previousUser() {
+  int nbUser = (int)users->findAll().size();
+  currentDisplayedUser = (currentDisplayedUser - 1 > 0 ? currentDisplayedUser - 1 : 2) % nbUser;
+}
+
+/***
+ * Switch the displayed task to the next task
+ */
+void nextTask() {
+  int nbTask = (int)tasks->findAll().size();
+  currentDisplayedTask = (currentDisplayedTask + 1) % nbTask;
+}
+
+/**
+ * Switch the displayed task to the previous task
+ */
+void previousTask() {
+  int nbTask = (int)tasks->findAll().size();
+  currentDisplayedTask = (currentDisplayedTask - 1 > 0 ? currentDisplayedTask - 1 : 2) % nbTask;
+}
+
 /**
  * Return the displayed group
  */
 Group* getDisplayedGroup() {
   return groups->find(currentDisplayedGroup);
+}
+
+/**
+ * Return the displayed user
+ */
+User* getDisplayedUser() {
+  return users->find(currentDisplayedUser);
+}
+
+/**
+ * Return the displayed task
+ */
+Task* getDisplayedTask() {
+  return tasks->find(currentDisplayedTask);
 }
 
 // Utilisée pour le capteur de mouvement

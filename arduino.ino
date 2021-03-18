@@ -226,24 +226,46 @@ void loop()
   Blynk.run();
 
   // Utilisée pour le capteur de mouvement
-  if (countUntilShake >= 4) {
+  if (countUntilShake >= 8) {
     countUntilShake = 0;
     Serial.println("Secousse");
 
-    getDisplayedTask()->nextState();
+    // Si la tâche était terminée, on jour le son personnalisé du groupe
+    if (getDisplayedTask()->getState() == TaskState::Done) {
+      if (getDisplayedGroup()->getSound() == 1)
+        memcpy(endTaskSound, endTaskSound1, sizeof(endTaskSound));
+      else
+        memcpy(endTaskSound, endTaskSound2, sizeof(endTaskSound));
+
+      for (int thisNote = 0; thisNote < maxNotes; thisNote++) {
+          int noteDuration = 1000 / endTaskSound[1][thisNote];
+          tone(3, endTaskSound[0][thisNote], noteDuration);
+          int pauseBetweenNotes = noteDuration * 1.30;
+          delay(pauseBetweenNotes);
+          noTone(3);
+      }
+    }
+
+    getDisplayedTask()->setState(TaskState::Todo);
   }
 
   // Regarde si un geste est fait de la main pour changer de groupe
   int gestureCapture = gesture->returnGeste();
-  if (gestureCapture == 1) {
+  if (gestureCapture == 1) { // de gauche à droite
     nextGroup();
+
+    currentDisplayedUser = 0;
+    currentDisplayedTask = 0;
     
     // Affiche la couleur du groupe 1
     setGroupLedColor();
 
     ecran->affichage("Grp:1 Usr:Romain", "Tâche:1 Etat:En cours");
-  } else if (gestureCapture == 2) {
+  } else if (gestureCapture == 2) { // de droite à gauche
     previousGroup();
+
+    currentDisplayedUser = 0;
+    currentDisplayedTask = 0;
     
     // Affiche la couleur du groupe 2
     setGroupLedColor();
@@ -256,9 +278,11 @@ void loop()
     if (touch.detection() == 0) {
       if (saveTap == 1) {
         nextUser();
+
+        currentDisplayedTask = 0;
       } else if (saveTap == 2) {
         nextTask();
-      } else if (saveTap == 3) {
+      } else if (saveTap == 3 && getDisplayedTask()->getState() != TaskState::Done) {
         getDisplayedTask()->nextState();
       }
       

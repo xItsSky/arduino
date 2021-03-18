@@ -9,12 +9,11 @@
 #include "Arduino.h"
 #include "ecran.h"
 
-ecran::ecran(rgb_lcd lcd)
+Ecran::Ecran()
 {
-  lcd.begin(16, 2);
-  _lcd = lcd;
+	_lcd.begin(16, 2);
 }
-void ecran::affichage(char* line1 ,char* line2 )
+void Ecran::affichage(char* line1 ,char* line2 )
 {
    _lcd.setCursor(0, 0);
    _lcd.print(line1);

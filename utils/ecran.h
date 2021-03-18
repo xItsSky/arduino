@@ -9,11 +9,11 @@
 #include "Arduino.h"
 #include "rgb_lcd.h"
 
-class ecran
+class Ecran
 {
   public:
-    ecran(rgb_lcd lcd);
-    void affichage(char* line1 ,char* line2 );
+	  Ecran();
+    void affichage(char* line1 , char* line2);
   private:
     rgb_lcd _lcd;
 };

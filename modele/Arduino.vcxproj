@@ -145,6 +145,7 @@
     <ClCompile Include="AbstractFactory.cpp" />
     <ClCompile Include="FactoryTest.cpp" />
     <ClCompile Include="GroupFactory.cpp" />
+    <ClCompile Include="RGB.cpp" />
     <ClCompile Include="TaskFactory.cpp" />
     <ClCompile Include="UserFactory.cpp" />
   </ItemGroup>
@@ -155,6 +156,7 @@
     <ClInclude Include="..\modele\User.h" />
     <ClInclude Include="AbstractFactory.h" />
     <ClInclude Include="GroupFactory.h" />
+    <ClInclude Include="RGB.h" />
     <ClInclude Include="TaskFactory.h" />
     <ClInclude Include="UserFactory.h" />
   </ItemGroup>

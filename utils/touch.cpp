@@ -14,6 +14,16 @@ touch::touch(int pin)
   _pin = pin;
   myTime = millis();
 }
+
+int touch::nbDetection(){
+  int time = millis();
+  int saveTouch = 0;
+  while(time < 1500){
+    //saveTouch = this->detection();
+  }
+  return saveTouch;
+}
+
 int touch::detection(){
   int val = digitalRead(_pin);
   if(val == 1 && val != previous){

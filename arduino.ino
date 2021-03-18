@@ -19,6 +19,8 @@ using namespace std;
 // INCLUDE DES UTILS
 #include "utils/BuzzerNotes.h"
 #include "utils/touch.cpp"
+#include "utils/ecran.cpp"
+#include "utils/gesture.cpp"
 
 // INCLUDE DU MODELE
 #include "modele/Group.cpp"
@@ -49,6 +51,13 @@ GroupFactory* groups = GroupFactory::getInstance();
 UserFactory* users = UserFactory::getInstance();
 TaskFactory* tasks = TaskFactory::getInstance();
 
+// Initialisation
+Group* group1;
+Group* group2;
+
+Gesture* gesture;
+Ecran* ecran;
+
 // Variables de gestions
 int currentDisplayedGroup = 0;
 int currentDisplayedUser = 0;
@@ -57,6 +66,8 @@ int currentDisplayedTask = 0;
 // Les pins
 const int pin = 4;
 const int pin_data = 5;
+const int pinTask = 5;
+const int pin_dataTask = 6;
 int pinBuzzer = 3;
 const int pinTouch = 2;
 
@@ -80,6 +91,9 @@ int endTaskSound[2][maxNotes] = {};
 // Led pour la couleur de groupe
 ChainableLED leds(pin, pin_data, 1);
 
+// Led pour la couleur des tâches
+ChainableLED ledsTask(pinTask, pin_dataTask, 2);
+
 // Variable pour le bluetooth
 char auth[] = "_fMOO1biadye2sn2M4Qn6g2pXLa1ULj8";
 BLEPeripheral  blePeripheral;
@@ -87,9 +101,6 @@ BLEPeripheral  blePeripheral;
 // Variable pour le capteur de mouvement
 int countUntilShake = 0;
 unsigned long interruptsTime = 0;    // get the time when motion event is detected
-
-Group* group1;
-Group* group2;
 
 /*******************************************************************************
  *                              BLUETOOTH                                      *
@@ -112,8 +123,6 @@ BLYNK_WRITE(V1) // Changement de couleur du groupe 1
 
   // Set la couleur au groupe 1
   group1->setColor(c);
-  
-  //leds.setColorRGB(0, redValue, greenValue, blueValue);
 }
 BLYNK_WRITE(V2) // Changement de couleur du groupe 2
 {
@@ -130,18 +139,21 @@ BLYNK_WRITE(V2) // Changement de couleur du groupe 2
 
   // Set la couleur au groupe 2
   group2->setColor(c);
-
-  //leds.setColorRGB(0, redValue, greenValue, blueValue);
 }
 BLYNK_WRITE(V3) // Changement de son du groupe 1
 {
   int soundValue = param.asInt();
 
+  // Set le son au groupe 1
+  group1->setSound(soundValue);
+
+  // A mettre dans la fin de tâche
   if (soundValue == 1)
     memcpy(endTaskSound, endTaskSound1, sizeof(endTaskSound));
   else
     memcpy(endTaskSound, endTaskSound2, sizeof(endTaskSound));
 
+  // A mettre dans la fin de tâche
   for (int thisNote = 0; thisNote < maxNotes; thisNote++) {
     int noteDuration = 1000 / endTaskSound[1][thisNote];
     tone(3, endTaskSound[0][thisNote], noteDuration);
@@ -155,11 +167,16 @@ BLYNK_WRITE(V4) // Changement de son du groupe 2
 {
   int soundValue = param.asInt();
 
+  // Set le son au groupe 2
+  group2->setSound(soundValue);
+
+  // A mettre dans la fin de tâche
   if (soundValue == 1)
     memcpy(endTaskSound, endTaskSound1, sizeof(endTaskSound));
   else
     memcpy(endTaskSound, endTaskSound2, sizeof(endTaskSound));
 
+  // A mettre dans la fin de tâche
   for (int thisNote = 0; thisNote < maxNotes; thisNote++) {
     int noteDuration = 1000 / endTaskSound[1][thisNote];
     tone(3, endTaskSound[0][thisNote], noteDuration);
@@ -188,10 +205,7 @@ void setup()
   blePeripheral.begin();
 
   leds.init();
-
-  // Utilisé pour le capteur de geste
-  uint8_t error = 0;
-  error = paj7620Init();
+  ledsTask.init();
 
   // Utilisé pour le capteur de mouvement
   CurieIMU.begin();
@@ -203,7 +217,8 @@ void setup()
   // initialise the groups, users and tasks factories
   initFactories();
 
-  //task->nextState(); // Pour changer d'état
+  gesture =  new Gesture();
+  ecran =  new Ecran();
 }
 
 /*******************************************************************************
@@ -216,62 +231,83 @@ void loop()
   blePeripheral.poll();
   Blynk.run();
 
-  // Utilisée pour le capteur de geste
-  uint8_t data = 0, error;
-  error = paj7620ReadReg(0x43, 1, &data);
-  if (!error)
-  {
-    switch (data) {
-      case GES_RIGHT_FLAG:
-        delay(GES_ENTRY_TIME);
-        paj7620ReadReg(0x43, 1, &data);
-        if (data == GES_FORWARD_FLAG)
-        {
-          Serial.println("Forward");
-          delay(GES_QUIT_TIME);
-        }
-        else if (data == GES_BACKWARD_FLAG)
-        {
-          Serial.println("Backward");
-          delay(GES_QUIT_TIME);
-        }
-        else
-        {
-          Serial.println("Right");
-        }
-        break;
-      case GES_LEFT_FLAG:
-        delay(GES_ENTRY_TIME);
-        paj7620ReadReg(0x43, 1, &data);
-        if (data == GES_FORWARD_FLAG)
-        {
-          Serial.println("Forward");
-          delay(GES_QUIT_TIME);
-        }
-        else if (data == GES_BACKWARD_FLAG)
-        {
-          Serial.println("Backward");
-          delay(GES_QUIT_TIME);
-        }
-        else
-        {
-          Serial.println("Left");
-        }
-        break;
-      default:
-        break;
-    }
-  }
-
   // Utilisée pour le capteur de mouvement
-  if (countUntilShake >= 4) {
+  if (countUntilShake >= 8) {
     countUntilShake = 0;
     Serial.println("Secousse");
+
+    // Si la tâche était terminée, on jour le son personnalisé du groupe
+    if (getDisplayedTask()->getState() == TaskState::Done) {
+      if (getDisplayedGroup()->getSound() == 1)
+        memcpy(endTaskSound, endTaskSound1, sizeof(endTaskSound));
+      else
+        memcpy(endTaskSound, endTaskSound2, sizeof(endTaskSound));
+
+      for (int thisNote = 0; thisNote < maxNotes; thisNote++) {
+          int noteDuration = 1000 / endTaskSound[1][thisNote];
+          tone(3, endTaskSound[0][thisNote], noteDuration);
+          int pauseBetweenNotes = noteDuration * 1.30;
+          delay(pauseBetweenNotes);
+          noTone(3);
+      }
+    }
+
+    getDisplayedTask()->setState(TaskState::Todo);
+
+    setLedTask();
   }
 
-  // Utilisé pour le capteur tactile
+  // Regarde si un geste est fait de la main pour changer de groupe
+  int gestureCapture = gesture->returnGeste();
+  if (gestureCapture == 1) { // de gauche à droite
+    nextGroup();
+
+    currentDisplayedUser = 0;
+    currentDisplayedTask = 0;
+
+    // Affiche la couleur de la tâche
+    setLedTask();
+    
+    // Affiche la couleur du groupe 1
+    setGroupLedColor();
+
+    ecran->affichage("Grp:1 Usr:Romain", "Tâche:1 Etat:En cours");
+  } else if (gestureCapture == 2) { // de droite à gauche
+    previousGroup();
+
+    currentDisplayedUser = 0;
+    currentDisplayedTask = 0;
+
+    // Affiche la couleur de la tâche
+    setLedTask();
+    
+    // Affiche la couleur du groupe 2
+    setGroupLedColor();
+
+    ecran->affichage("Grp:2 Usr:Valentin", "Tâche:1 Etat:En cours");
+  }
+
+  // Regarde si le capteur tactile est utilisé
   if (touch.detection() != saveTap) {
     if (touch.detection() == 0) {
+      if (saveTap == 1) {
+        nextUser();
+
+        currentDisplayedTask = 0;
+
+        // Affiche la couleur de la tâche
+        setLedTask();
+      } else if (saveTap == 2) {
+        nextTask();
+
+        // Affiche la couleur de la tâche
+        setLedTask();
+      } else if (saveTap == 3 && getDisplayedTask()->getState() != TaskState::Done) {
+        getDisplayedTask()->nextState();
+
+        // Affiche la couleur de la tâche
+        setLedTask();
+      }
       
       Serial.print("touch : ");
       Serial.println(saveTap);
@@ -297,6 +333,19 @@ void setGroupLedColor() {
   int blue = (rgb & 0x0000ff);
 
   leds.setColorRGB(0, red, green, blue);
+}
+
+void setLedTask() {
+  if (getDisplayedTask()->getState() == TaskState::Todo) {
+    ledsTask.setColorRGB(0, 255, 0, 0);
+    ledsTask.setColorRGB(1, 255, 0, 0);
+  } else if (getDisplayedTask()->getState() == TaskState::InProgress) {
+    ledsTask.setColorRGB(0, 0, 0, 255);
+    ledsTask.setColorRGB(1, 0, 0, 255);
+  } else {
+    ledsTask.setColorRGB(0, 0, 255, 0);
+    ledsTask.setColorRGB(1, 0, 255, 0);
+  }
 }
 
 /**

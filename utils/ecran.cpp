@@ -15,8 +15,10 @@ Ecran::Ecran()
 }
 void Ecran::affichage(char* line1 ,char* line2 )
 {
+   _lcd.clear();
    _lcd.setCursor(0, 0);
    _lcd.print(line1);
    _lcd.setCursor(0, 1);
    _lcd.print(line2);
+   
 }

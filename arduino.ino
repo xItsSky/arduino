@@ -29,6 +29,7 @@ using namespace std;
 #include "modele/GroupFactory.cpp"
 #include "modele/UserFactory.cpp"
 #include "modele/TaskFactory.cpp"
+#include "modele/RGB.cpp"
 
 /*******************************************************************************
  *                              DEFINES                                        *
@@ -224,6 +225,7 @@ void setup()
 /*******************************************************************************
  *                                  LOOP                                       *
  *******************************************************************************/
+
  
 void loop()
 {
@@ -232,7 +234,7 @@ void loop()
   Blynk.run();
 
   // Utilisée pour le capteur de mouvement
-  if (countUntilShake >= 8) {
+  if (countUntilShake >= 20) {
     countUntilShake = 0;
     Serial.println("Secousse");
 
@@ -255,6 +257,7 @@ void loop()
     getDisplayedTask()->setState(TaskState::Todo);
 
     setLedTask();
+    afficher();
   }
 
   // Regarde si un geste est fait de la main pour changer de groupe
@@ -271,7 +274,7 @@ void loop()
     // Affiche la couleur du groupe 1
     setGroupLedColor();
 
-    ecran->affichage("Grp:1 Usr:Romain", "Tâche:1 Etat:En cours");
+    afficher();
   } else if (gestureCapture == 2) { // de droite à gauche
     previousGroup();
 
@@ -283,8 +286,8 @@ void loop()
     
     // Affiche la couleur du groupe 2
     setGroupLedColor();
-
-    ecran->affichage("Grp:2 Usr:Valentin", "Tâche:1 Etat:En cours");
+    
+    afficher();
   }
 
   // Regarde si le capteur tactile est utilisé
@@ -308,9 +311,7 @@ void loop()
         // Affiche la couleur de la tâche
         setLedTask();
       }
-      
-      Serial.print("touch : ");
-      Serial.println(saveTap);
+      afficher();
       saveTap = touch.detection();
     } else if (touch.detection() == 1) {
       saveTap = touch.detection();
@@ -322,17 +323,26 @@ void loop()
   }
 }
 
+void afficher() {
+    char char_line1[255];
+    char char_line2[255];
+    strcpy(char_line1, getDisplayedGroup()->getName());
+    strcat(char_line1, " ");
+    strcat(char_line1, getDisplayedUser()->getName());
+    strcpy(char_line2, getDisplayedTask()->getName());
+    strcat(char_line2, " ");
+    strcat(char_line2, enum_str[(int)getDisplayedTask()->getState()]);
+
+    ecran->affichage(char_line1, char_line2);
+}
+
 /**
  * Setup the chainable led color based on the current displayed group
  * /!\ To test I'm not sure
  */
 void setGroupLedColor() {
-  long int rgb = (long) strtol( getDisplayedGroup()->getColor(), NULL, 16);
-  int red = rgb >> 16L;
-  int green = (rgb & 0x00ff00) >> 8L;
-  int blue = (rgb & 0x0000ff);
-
-  leds.setColorRGB(0, red, green, blue);
+  RGB rgb = RGB::HexadecimalToRGB(getDisplayedGroup()->getColor());
+  leds.setColorRGB(0, rgb.R, rgb.G, rgb.B);
 }
 
 void setLedTask() {
@@ -353,10 +363,10 @@ void setLedTask() {
  */
 void initFactories() {
   // tasks
-  Task* task1 = new Task(1, (char*)"Réaliser les classes métiers");
-  Task* task2 = new Task(2, (char*)"Tester les classes métiers");
-  Task* task3 = new Task(3, (char*)"Réaliser le code Arduino");
-  Task* task4 = new Task(4, (char*)"Tester le code Arduino");
+  Task* task1 = new Task(1, (char*)"Tache1");
+  Task* task2 = new Task(2, (char*)"Tache2");
+  Task* task3 = new Task(3, (char*)"Tache3");
+  Task* task4 = new Task(4, (char*)"Tache4");
 
   tasks->create(task1);
   tasks->create(task2);
@@ -377,10 +387,10 @@ void initFactories() {
   users->create(user3);
 
   // groups
-  group1 = new Group(1, (char*)"Groupe 1", (char*)"#FF0000", 1);
+  group1 = new Group(1, (char*)"Grp1", (char*)"#FF0000", 1);
   group1->addUser(user1);
   group1->addUser(user2);
-  group2 = new Group(2, (char*)"Groupe 2", (char*)"#0000FF", 2);
+  group2 = new Group(2, (char*)"Grp2", (char*)"#0000FF", 2);
   group2->addUser(user3);
 
   groups->create(group1);
@@ -400,14 +410,14 @@ void nextGroup() {
  */
 void previousGroup() {
   int nbGroup = (int)groups->findAll().size();
-  currentDisplayedGroup = (currentDisplayedGroup - 1 > 0 ? currentDisplayedGroup - 1 : 2) % nbGroup;
+  currentDisplayedGroup = (currentDisplayedGroup - 1 > 0 ? currentDisplayedGroup - 1 : nbGroup - 1) % nbGroup;
 }
 
 /***
  * Switch the displayed user to the next user
  */
 void nextUser() {
-  int nbUser = (int)users->findAll().size();
+  int nbUser = (int)getDisplayedGroup()->getUser().size();
   currentDisplayedUser = (currentDisplayedUser + 1) % nbUser;
 }
 
@@ -415,15 +425,15 @@ void nextUser() {
  * Switch the displayed user to the previous user
  */
 void previousUser() {
-  int nbUser = (int)users->findAll().size();
-  currentDisplayedUser = (currentDisplayedUser - 1 > 0 ? currentDisplayedUser - 1 : 2) % nbUser;
+  int nbUser = (int)getDisplayedGroup()->getUser().size();
+  currentDisplayedUser = (currentDisplayedUser - 1 > 0 ? currentDisplayedUser - 1 : nbUser - 1) % nbUser;
 }
 
 /***
  * Switch the displayed task to the next task
  */
 void nextTask() {
-  int nbTask = (int)tasks->findAll().size();
+  int nbTask = (int)getDisplayedUser()->getTasks().size();
   currentDisplayedTask = (currentDisplayedTask + 1) % nbTask;
 }
 
@@ -431,8 +441,8 @@ void nextTask() {
  * Switch the displayed task to the previous task
  */
 void previousTask() {
-  int nbTask = (int)tasks->findAll().size();
-  currentDisplayedTask = (currentDisplayedTask - 1 > 0 ? currentDisplayedTask - 1 : 2) % nbTask;
+  int nbTask = (int)getDisplayedUser()->getTasks().size();
+  currentDisplayedTask = (currentDisplayedTask - 1 > 0 ? currentDisplayedTask - 1 : nbTask - 1) % nbTask;
 }
 
 /**
@@ -446,14 +456,24 @@ Group* getDisplayedGroup() {
  * Return the displayed user
  */
 User* getDisplayedUser() {
-  return users->find(currentDisplayedUser);
+  std::list<User*> users = getDisplayedGroup()->getUser();
+  std::list<User*>::iterator it = users.begin(); 
+  for (int i = 0; i < currentDisplayedUser; i++) {       
+    ++it;     
+  }     
+  return *it;
 }
 
 /**
  * Return the displayed task
  */
 Task* getDisplayedTask() {
-  return tasks->find(currentDisplayedTask);
+  std::list<Task*> tasks = getDisplayedUser()->getTasks();
+  std::list<Task*>::iterator it = tasks.begin(); 
+  for (int i = 0; i < currentDisplayedTask; i++) {       
+    ++it;     
+  }     
+  return *it;
 }
 
 // Utilisée pour le capteur de mouvement
